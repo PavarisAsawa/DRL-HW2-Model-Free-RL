@@ -88,7 +88,8 @@ def main():
     # ==================================================================== #
     # ========================= Can be modified ========================== #
 
-    n_episodes = 1000
+    n_episodes = 1000                    # env stepping
+
 
     # reset environment
     obs, _ = env.reset()
