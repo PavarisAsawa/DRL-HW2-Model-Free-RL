@@ -132,8 +132,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
                     done = terminated or truncated
                     obs = next_obs
-                print(f"test : {print(np.array([env.observation_space.sample()]))}")
-
         
 
         if args_cli.video:

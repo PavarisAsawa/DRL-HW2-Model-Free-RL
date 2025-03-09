@@ -104,9 +104,6 @@ class BaseAlgorithm():
         vel_cart_clip = np.clip(vel_cart_raw , -vel_cart_bound ,vel_cart_bound)
         vel_pole_clip = np.clip(vel_pole_raw , -vel_pole_bound ,vel_pole_bound)
 
-        # scaled value
-        pose_cart_scaled, pose_pole_scaled , vel_cart_scaled , vel_pole_scaled = pose_cart_clip, pose_pole_clip , vel_cart_clip , vel_pole_clip
-
         # linspace value
         pose_cart_grid = np.linspace(-pose_cart_bound , pose_cart_bound , pose_cart_bin)
         pose_pole_grid = np.linspace(-pose_pole_bound , pose_pole_bound , pose_pole_bin)
@@ -114,7 +111,7 @@ class BaseAlgorithm():
         vel_pole_grid = np.linspace(-vel_pole_bound , vel_pole_bound , vel_pole_bin)
 
         # digitalize to range
-        pose_cart_dig = np.digitize(x=pose_cart_scaled,bins=pose_cart_grid) -1
+        pose_cart_dig = np.digitize(x=pose_cart_clip,bins=pose_cart_grid) -1
         pose_pole_dig = np.digitize(x=pose_pole_clip,bins=pose_pole_grid) -1 
         vel_cart_dig = np.digitize(x=vel_cart_clip,bins=vel_cart_grid) - 1 
         vel_pose_dig = np.digitize(x=vel_pole_clip,bins=vel_pole_grid) - 1
@@ -133,7 +130,15 @@ class BaseAlgorithm():
         Returns:
             int: Chosen discrete action index.
         """
+
         # ========= put your code here =========#
+        rand = np.random.rand() # random with unitform distribution
+
+        if(rand <= self.epsilon):
+            pass # some exploration [Random action]
+        elif (rand > self.epsilon):
+            pass # pick from policy
+
         pass
         # ======================================#
     
@@ -171,6 +176,7 @@ class BaseAlgorithm():
         """
         Decay epsilon value to reduce exploration over time.
         """
+        self.epsilon = max(min=self.final_epsilon ,max=self.epsilon - self.epsilon_decay)
 
     def save_q_value(self, path, filename):
         """

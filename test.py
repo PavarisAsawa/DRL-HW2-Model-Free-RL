@@ -53,10 +53,12 @@ def discretize_state(obs: dict):
     return ( int(pose_cart_dig), int(pose_pole_dig), int(vel_cart_dig),  int(vel_pose_dig))
 
 
-# Create a tensor
-tensor_data = torch.tensor([[-4.8 , 0 , 20 , -10]])
+# # Create a tensor
+# tensor_data = torch.tensor([[-4.8 , 0 , 20 , -10]])
 
-# Create a dictionary
-obs = {"policy": tensor_data}
+# # Create a dictionary
+# obs = {"policy": tensor_data}
 
-print(discretize_state(obs))
+# print(discretize_state(obs))
+
+print(np.random.rand())
