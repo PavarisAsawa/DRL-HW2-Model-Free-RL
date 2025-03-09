@@ -104,7 +104,7 @@ def main():
                 done = False
 
                 while not done:
-                    action = random_scaled_tensor(10)
+                    action = random_scaled_tensor(0) # default 10
                     
                     # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)
@@ -112,11 +112,18 @@ def main():
                     done = terminated or truncated
                     obs = next_obs
 
+                print(f"Cart Pose : {obs['policy'][0, 0]} \n")
+                print(f"Cart Vel : {obs['policy'][0, 1]} \n")
+                print(f"Pole Pose : {obs['policy'][0, 2]} \n")
+                print(f"Pole Vel : {obs['policy'][0, 3]} \n")
+
+
         if args_cli.video:
             timestep += 1
             # Exit the play loop after recording one video
             if timestep == args_cli.video_length:
                 break
+        
 
     # ==================================================================== #
 

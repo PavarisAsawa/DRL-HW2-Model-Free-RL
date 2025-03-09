@@ -148,6 +148,7 @@ class TerminationsCfg:
         func=mdp.joint_pos_out_of_manual_limit,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=["slider_to_cart"]), "bounds": (-3.0, 3.0)},
     )
+
     # (3) Pole out of bounds
     pole_out_of_bounds = DoneTerm(
         func=mdp.joint_pos_out_of_manual_limit,

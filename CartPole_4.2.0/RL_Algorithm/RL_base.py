@@ -82,12 +82,45 @@ class BaseAlgorithm():
         """
 
         # ========= put your code here =========#
-        discrete_state  = {}
-        for index , (key, value) in enumerate (obs.items()):
-            
-            discrete_state[key] = int(value / self.discretize_state_weight[key])
+        # cart pose range : [-4.5 , 4.5]
+        # pole pose range : [-pi , pi]
+        # cart vel  range : [-20 , 20 ] real value is [-inf , inf]
+        # pole vel range  : [-20 , 20 ] real value is [-inf , inf]
         
-        pass
+        # define number of value
+        pose_cart_bin , pose_pole_bin , vel_cart_bin , vel_pole_bin = 100 , 720 , 100 , 100
+
+        # get observation term from continuos space
+        pose_cart_raw, pose_pole_raw , vel_cart_raw , vel_pole_raw = obs['policy'][0, 0] , obs['policy'][0, 1] , obs['policy'][0, 2] , obs['policy'][0, 3]
+
+        # Clipping value
+        pose_cart_bound = 4.5
+        pose_pole_bound = np.pi
+        vel_cart_bound = 20
+        vel_pole_bound = 20
+
+        pose_cart_clip = np.clip(pose_cart_raw , -pose_cart_bound ,pose_cart_bound)
+        pose_pole_clip = np.clip(pose_pole_raw , -pose_pole_bound ,pose_pole_bound)
+        vel_cart_clip = np.clip(vel_cart_raw , -vel_cart_bound ,vel_cart_bound)
+        vel_pole_clip = np.clip(vel_pole_raw , -vel_pole_bound ,vel_pole_bound)
+
+        # scaled value
+        pose_cart_scaled, pose_pole_scaled , vel_cart_scaled , vel_pole_scaled = pose_cart_clip, pose_pole_clip , vel_cart_clip , vel_pole_clip
+
+        # linspace value
+        pose_cart_grid = np.linspace(-pose_cart_bound , pose_cart_bound , pose_cart_bin)
+        pose_pole_grid = np.linspace(-pose_pole_bound , pose_pole_bound , pose_pole_bin)
+        vel_cart_grid = np.linspace(-vel_cart_bound , vel_cart_bound , vel_cart_bin)
+        vel_pole_grid = np.linspace(-vel_pole_bound , vel_pole_bound , vel_pole_bin)
+
+        # digitalize to range
+        pose_cart_dig = np.digitize(x=pose_cart_scaled,bins=pose_cart_grid) -1
+        pose_pole_dig = np.digitize(x=pose_pole_clip,bins=pose_pole_grid) -1 
+        vel_cart_dig = np.digitize(x=vel_cart_clip,bins=vel_cart_grid) - 1 
+        vel_pose_dig = np.digitize(x=vel_pole_clip,bins=vel_pole_grid) - 1
+
+        return ( int(pose_cart_dig), int(pose_pole_dig), int(vel_cart_dig),  int(vel_pose_dig))
+    
         # ======================================#
 
     def get_discretize_action(self, obs_dis) -> int:
