@@ -82,22 +82,25 @@ class BaseAlgorithm():
         """
 
         # ========= put your code here =========#
-        # cart pose range : [-4.5 , 4.5]
+        # cart pose range : [-4.8 , 4.8]
         # pole pose range : [-pi , pi]
-        # cart vel  range : [-20 , 20 ] real value is [-inf , inf]
-        # pole vel range  : [-20 , 20 ] real value is [-inf , inf]
+        # cart vel  range : [-inf , inf]
+        # pole vel range  : [-inf , inf]
         
         # define number of value
-        pose_cart_bin , pose_pole_bin , vel_cart_bin , vel_pole_bin = 100 , 720 , 100 , 100
-
-        # get observation term from continuos space
-        pose_cart_raw, pose_pole_raw , vel_cart_raw , vel_pole_raw = obs['policy'][0, 0] , obs['policy'][0, 1] , obs['policy'][0, 2] , obs['policy'][0, 3]
+        pose_cart_bin = 100
+        pose_pole_bin = 720
+        vel_cart_bin = 100
+        vel_pole_bin = 100
 
         # Clipping value
         pose_cart_bound = 4.5
         pose_pole_bound = np.pi
-        vel_cart_bound = 20
-        vel_pole_bound = 20
+        vel_cart_bound = 10
+        vel_pole_bound = 10
+        
+        # get observation term from continuos space
+        pose_cart_raw, pose_pole_raw , vel_cart_raw , vel_pole_raw = obs['policy'][0, 0] , obs['policy'][0, 1] , obs['policy'][0, 2] , obs['policy'][0, 3]
 
         pose_cart_clip = np.clip(pose_cart_raw , -pose_cart_bound ,pose_cart_bound)
         pose_pole_clip = np.clip(pose_pole_raw , -pose_pole_bound ,pose_pole_bound)
@@ -134,12 +137,11 @@ class BaseAlgorithm():
         # ========= put your code here =========#
         rand = np.random.rand() # random with unitform distribution
 
-        if(rand <= self.epsilon):
-            pass # some exploration [Random action]
-        elif (rand > self.epsilon):
-            pass # pick from policy
+        if(rand <= self.epsilon): # Exploration [Random action]
+            return np.random.randint(0, self.num_of_action)
+        elif (rand > self.epsilon): # Exploitation [Greedy action]
+            return np.argmax(self.q_values[obs_dis]) 
 
-        pass
         # ======================================#
     
     def mapping_action(self, action):
@@ -154,7 +156,7 @@ class BaseAlgorithm():
             torch.Tensor: Scaled action tensor.
         """
         # ========= put your code here =========#
-        pass
+        return torch.tensor([[action * ((self.action_range[1] - self.action_range[0]) / (self.num_of_action-1 )) + self.action_range[0]]])
         # ======================================#s
 
     def get_action(self, obs) -> torch.tensor:
