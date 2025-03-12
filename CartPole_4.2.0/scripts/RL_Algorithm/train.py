@@ -5,6 +5,7 @@
 import argparse
 import sys
 import os
+import json
 
 from omni.isaac.lab.app import AppLauncher
 
@@ -111,6 +112,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         discount_factor=discount
     )
 
+    # get reward to evaluation
+    cumulative_reward_history = []
+    
     # reset environment
     obs, _ = env.reset()
     timestep = 0
@@ -128,9 +132,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 while not done:
                     # agent stepping
                     action, action_idx = agent.get_action(obs)
+                    obs_dis = agent.discretize_state(obs)
 
                     # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)
+                    next_obs_dis = agent.discretize_state(next_obs)
 
                     reward_value = reward.item()
                     terminated_value = terminated.item() 
@@ -144,6 +150,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     obs = next_obs
                 
                 sum_reward += cumulative_reward
+                cumulative_reward_history.append(cumulative_reward)
+                
                 if episode % 100 == 0:
                     print("avg_score: ", sum_reward / 100.0)
                     sum_reward = 0
@@ -155,6 +163,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             q_value_file = "name.json"
             full_path = os.path.join("q_value", Algorithm_name)
             agent.save_model(full_path, q_value_file)
+            
+            # Save reward history
+            os.makedirs("reward_value", exist_ok=True)
+            reward_file = os.path.join("reward_value", "reward_history.json")
+            with open(reward_file, "w") as f:
+                json.dump(cumulative_reward_history, f)
             
         if args_cli.video:
             timestep += 1

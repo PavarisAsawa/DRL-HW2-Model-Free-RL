@@ -88,10 +88,14 @@ class BaseAlgorithm():
         # pole vel range  : [-inf , inf]
         
         # define number of value
-        pose_cart_bin = 100
-        pose_pole_bin = 720
-        vel_cart_bin = 100
-        vel_pole_bin = 100
+        pose_cart_bin = self.discretize_state_weight[0]
+        pose_pole_bin = self.discretize_state_weight[1]
+        vel_cart_bin = self.discretize_state_weight[2]
+        vel_pole_bin = self.discretize_state_weight[3]
+        # pose_cart_bin = 100
+        # pose_pole_bin = 720
+        # vel_cart_bin = 100
+        # vel_pole_bin = 100
 
         # Clipping value
         pose_cart_bound = 4.5
@@ -178,7 +182,7 @@ class BaseAlgorithm():
         """
         Decay epsilon value to reduce exploration over time.
         """
-        self.epsilon = max(min=self.final_epsilon ,max=self.epsilon - self.epsilon_decay)
+        self.epsilon = max(min=self.final_epsilon ,max=self.epsilon*self.epsilon_decay)
 
     def save_q_value(self, path, filename):
         """

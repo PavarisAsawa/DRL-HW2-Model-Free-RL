@@ -41,11 +41,20 @@ class SARSA(BaseAlgorithm):
         
     def update(
         self,
-
+        obs_dis,
+        action_idx,
+        reward,
+        next_obs_dis,
+        done
     ):
         """
         Update Q-values using SARSA .
 
         This method applies the SARSA update rule to improve policy decisions by updating the Q-table.
         """
+        if done: # not boostraping
+            self.q_values[obs_dis][action_idx] += self.lr * (reward - self.q_values[obs_dis][action_idx])
+        else:
+            _next_action_idx = self.get_discretize_action(next_obs_dis)
+            self.q_values[obs_dis][action_idx] += self.lr * (reward + self.discount_factor * self.q_values[next_obs_dis][_next_action_idx] - self.q_values[obs_dis][action_idx])
         pass

@@ -126,6 +126,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 while not done:
                     # agent stepping
                     action, action_idx = agent.get_action(obs)
+                    obs_dis = agent.discretize_state(obs)
 
                     # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)
