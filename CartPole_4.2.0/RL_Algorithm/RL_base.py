@@ -98,30 +98,32 @@ class BaseAlgorithm():
         # vel_pole_bin = 100
 
         # Clipping value
-        pose_cart_bound = 4.5
-        pose_pole_bound = np.pi
-        vel_cart_bound = 10
-        vel_pole_bound = 10
+        pose_cart_bound = 3
+        pose_pole_bound = float(np.deg2rad(24.0))
+        vel_cart_bound = 5
+        vel_pole_bound = 3
         
         # get observation term from continuos space
         pose_cart_raw, pose_pole_raw , vel_cart_raw , vel_pole_raw = obs['policy'][0, 0] , obs['policy'][0, 1] , obs['policy'][0, 2] , obs['policy'][0, 3]
 
-        pose_cart_clip = np.clip(pose_cart_raw , -pose_cart_bound ,pose_cart_bound)
-        pose_pole_clip = np.clip(pose_pole_raw , -pose_pole_bound ,pose_pole_bound)
-        vel_cart_clip = np.clip(vel_cart_raw , -vel_cart_bound ,vel_cart_bound)
-        vel_pole_clip = np.clip(vel_pole_raw , -vel_pole_bound ,vel_pole_bound)
+        pose_cart_clip = torch.clip(pose_cart_raw , -pose_cart_bound ,pose_cart_bound)
+        pose_pole_clip = torch.clip(pose_pole_raw , -pose_pole_bound ,pose_pole_bound)
+        vel_cart_clip = torch.clip(vel_cart_raw , -vel_cart_bound ,vel_cart_bound)
+        vel_pole_clip = torch.clip(vel_pole_raw , -vel_pole_bound ,vel_pole_bound)
+
+        device = pose_cart_clip.device
 
         # linspace value
-        pose_cart_grid = np.linspace(-pose_cart_bound , pose_cart_bound , pose_cart_bin)
-        pose_pole_grid = np.linspace(-pose_pole_bound , pose_pole_bound , pose_pole_bin)
-        vel_cart_grid = np.linspace(-vel_cart_bound , vel_cart_bound , vel_cart_bin)
-        vel_pole_grid = np.linspace(-vel_pole_bound , vel_pole_bound , vel_pole_bin)
+        pose_cart_grid = torch.linspace(-pose_cart_bound , pose_cart_bound , pose_cart_bin , device=device)
+        pose_pole_grid = torch.linspace(-pose_pole_bound , pose_pole_bound , pose_pole_bin , device=device)
+        vel_cart_grid = torch.linspace(-vel_cart_bound , vel_cart_bound , vel_cart_bin , device=device)
+        vel_pole_grid = torch.linspace(-vel_pole_bound , vel_pole_bound , vel_pole_bin , device=device)
 
         # digitalize to range
-        pose_cart_dig = np.digitize(x=pose_cart_clip,bins=pose_cart_grid) -1
-        pose_pole_dig = np.digitize(x=pose_pole_clip,bins=pose_pole_grid) -1 
-        vel_cart_dig = np.digitize(x=vel_cart_clip,bins=vel_cart_grid) - 1 
-        vel_pose_dig = np.digitize(x=vel_pole_clip,bins=vel_pole_grid) - 1
+        pose_cart_dig = torch.bucketize(pose_cart_clip,pose_cart_grid)
+        pose_pole_dig = torch.bucketize(pose_pole_clip,pose_pole_grid)
+        vel_cart_dig = torch.bucketize(vel_cart_clip,vel_cart_grid)
+        vel_pose_dig = torch.bucketize(vel_pole_clip,vel_pole_grid)
 
         return ( int(pose_cart_dig), int(pose_pole_dig), int(vel_cart_dig),  int(vel_pose_dig))
     
@@ -182,7 +184,7 @@ class BaseAlgorithm():
         """
         Decay epsilon value to reduce exploration over time.
         """
-        self.epsilon = max(min=self.final_epsilon ,max=self.epsilon*self.epsilon_decay)
+        self.epsilon = max(self.final_epsilon ,self.epsilon-self.epsilon_decay)
 
     def save_q_value(self, path, filename):
         """
