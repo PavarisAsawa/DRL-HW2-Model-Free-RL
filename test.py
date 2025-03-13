@@ -31,12 +31,7 @@ def discretize_state(obs: dict):
     pose_cart_bin = 5
     pose_pole_bin = 5
     vel_cart_bin = 10
-    vel_pole_bin = 20
-    # pose_cart_bin = 100
-    # pose_pole_bin = 720
-    # vel_cart_bin = 100
-    # vel_pole_bin = 100
-
+    vel_pole_bin = 0
     # Clipping value
     pose_cart_bound = 4.5
     pose_pole_bound = np.pi
@@ -65,13 +60,15 @@ def discretize_state(obs: dict):
 
     return ( int(pose_cart_dig), int(pose_pole_dig), int(vel_cart_dig),  int(vel_pose_dig))
 
-# tensor = torch.tensor([[1,4,3,14]])
-# obs = {'policy' : tensor}
+tensor = torch.tensor([[0,0,0,50]])
+obs = {'policy' : tensor}
 
 # print(discretize_state(obs))
 
 # Save reward history
-os.makedirs("reward_value", exist_ok=True)
-reward_file = os.path.join("reward_value", "reward_history.json")
-with open(reward_file, "w") as f:
-    json.dump([5,4,3,1,5,6,8,7], f)
+# os.makedirs("reward_value", exist_ok=True)
+# reward_file = os.path.join("reward_value", "reward_history.json")
+# with open(reward_file, "w") as f:
+#     json.dump([5,4,3,1,5,6,8,7], f)
+
+print(discretize_state(obs))

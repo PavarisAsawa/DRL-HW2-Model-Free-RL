@@ -17,8 +17,8 @@ from tqdm import tqdm
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=20, help="Length of the recorded video (in steps).")
-parser.add_argument("--video_interval", type=int, default=200, help="Interval between video recordings (in steps).")
+parser.add_argument("--video_length", type=int, default=500, help="Length of the recorded video (in steps).")
+parser.add_argument("--video_interval", type=int, default=5000, help="Interval between video recordings (in steps).")
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
@@ -106,13 +106,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ========================= Can be modified ========================== #
 
     # hyperparameters
-    num_of_action = 16
-    action_range = [-3, 3]  # [min, max]
-    discretize_state_weight = [20, 48, 12, 12]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = 1.0
-    n_episodes = 100
+    num_of_action = 20
+    action_range = [-10, 10]  # [min, max]
+    discretize_state_weight = [15, 24, 0, 0]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    learning_rate = 0.01
+    n_episodes = 5000
     start_epsilon = 1.0
-    epsilon_decay = 0.000025  # reduce the exploration over time
+    epsilon_decay = 0.00025  # reduce the exploration over time
     final_epsilon = 0.05
     discount = 1
 

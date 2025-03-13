@@ -95,13 +95,24 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # discount = None
 
     # hyperparameters
-    num_of_action = 8
-    action_range = [-3, 3]  # [min, max]
-    discretize_state_weight = [10, 24, 8, 8]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = 0.3
-    n_episodes = 3000
+    # num_of_action = 8
+    # action_range = [-3, 3]  # [min, max]
+    # discretize_state_weight = [10, 24, 8, 8]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    # learning_rate = 0.3
+    # n_episodes = 3000
+    # start_epsilon = 1.0
+    # epsilon_decay = 0.001  # reduce the exploration over time
+    # final_epsilon = 0.05
+    # discount = 1
+
+    # hyperparameters
+    num_of_action = 20
+    action_range = [-10, 10]  # [min, max]
+    discretize_state_weight = [15, 24, 0, 0]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    learning_rate = 0.01
+    n_episodes = 5000
     start_epsilon = 1.0
-    epsilon_decay = 0.001  # reduce the exploration over time
+    epsilon_decay = 0.00025  # reduce the exploration over time
     final_epsilon = 0.05
     discount = 1
 
@@ -117,7 +128,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     )
 
     Algorithm_name = "Q_Learning"  
-    q_value_file = "QL_q_3.json"
+    q_value_file = "QL_q_4.json"
     full_path = os.path.join("q_value", Algorithm_name)
     agent.load_q_value(full_path, q_value_file)
 
