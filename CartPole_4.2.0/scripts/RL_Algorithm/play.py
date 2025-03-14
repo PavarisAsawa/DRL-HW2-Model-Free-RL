@@ -11,6 +11,11 @@ from omni.isaac.lab.app import AppLauncher
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from RL_Algorithm.Algorithm.Q_Learning import Q_Learning
+from RL_Algorithm.Algorithm.SARSA import SARSA
+from RL_Algorithm.Algorithm.MC import MC
+from RL_Algorithm.Algorithm.Double_Q_Learning import Double_Q_Learning
+
+
 from tqdm import tqdm
 
 # add argparse arguments
@@ -94,29 +99,19 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # final_epsilon = None
     # discount = None
 
-    # hyperparameters
-    # num_of_action = 8
-    # action_range = [-3, 3]  # [min, max]
-    # discretize_state_weight = [10, 24, 8, 8]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    # learning_rate = 0.3
-    # n_episodes = 3000
-    # start_epsilon = 1.0
-    # epsilon_decay = 0.001  # reduce the exploration over time
-    # final_epsilon = 0.05
-    # discount = 1
 
     # hyperparameters
-    num_of_action = 20
-    action_range = [-10, 10]  # [min, max]
-    discretize_state_weight = [15, 24, 0, 0]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = 0.01
+    num_of_action = 5
+    action_range = [-12, 12]  # [min, max]
+    discretize_state_weight = [4, 8, 4, 4]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    learning_rate = 0.03
     n_episodes = 5000
-    start_epsilon = 1.0
-    epsilon_decay = 0.00025  # reduce the exploration over time
+    start_epsilon = 0.05
+    epsilon_decay = 0.00003 # reduce the exploration over time
     final_epsilon = 0.05
     discount = 1
 
-    agent = Q_Learning(
+    agent = Double_Q_Learning(
         num_of_action=num_of_action,
         action_range=action_range,
         discretize_state_weight=discretize_state_weight,
@@ -127,9 +122,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         discount_factor=discount
     )
 
-    Algorithm_name = "Q_Learning"  
-    q_value_file = "QL_q_4.json"
-    full_path = os.path.join("q_value", Algorithm_name)
+
+    task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
+    Algorithm_name = "Double_Q_Learning"  
+    episode = 4900
+    save_number = "0"
+    q_value_file = f"{Algorithm_name}_{save_number}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
+    full_path = os.path.join(f"q_value/{task_name}", f"{Algorithm_name}/{Algorithm_name}{save_number}")
     agent.load_q_value(full_path, q_value_file)
 
     # reset environment
@@ -152,6 +151,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
                     # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)
+
+                    # print(obs["policy"])
+                    print(action)
 
                     done = terminated or truncated
                     obs = next_obs

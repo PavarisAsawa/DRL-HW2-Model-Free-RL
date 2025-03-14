@@ -43,8 +43,8 @@ class SARSA(BaseAlgorithm):
         self,
         obs_dis,
         action_idx,
-        reward,
         next_obs_dis,
+        reward,
         done
     ):
         """

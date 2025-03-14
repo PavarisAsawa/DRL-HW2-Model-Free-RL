@@ -11,7 +11,7 @@ class ControlType(Enum):
     Enum representing different control algorithms.
     """
     MONTE_CARLO = 1
-    TEMPORAL_DIFFERENCE = 2
+    SARSA = 2
     Q_LEARNING = 3
     DOUBLE_Q_LEARNING = 4
 
@@ -98,7 +98,7 @@ class BaseAlgorithm():
         # vel_pole_bin = 100
 
         # Clipping value
-        pose_cart_bound = 30
+        pose_cart_bound = 3
         pose_pole_bound = float(np.deg2rad(24.0))
         vel_cart_bound = 15
         vel_pole_bound = 15

@@ -4,6 +4,7 @@ from collections import defaultdict
 import sys
 import os
 import json
+import numpy as np
 
 def random_scaled_tensor(value_range):
     rand_tensor = torch.rand((1,1))  
@@ -71,4 +72,9 @@ obs = {'policy' : tensor}
 # with open(reward_file, "w") as f:
 #     json.dump([5,4,3,1,5,6,8,7], f)
 
-print(discretize_state(obs))
+# print(discretize_state(obs))
+
+update_rand = np.random.randint(0, 2)
+if update_rand:
+    print("hi")
+else: print(update_rand)

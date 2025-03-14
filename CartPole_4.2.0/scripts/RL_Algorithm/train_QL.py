@@ -17,8 +17,8 @@ from tqdm import tqdm
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=1000, help="Length of the recorded video (in steps).")
-parser.add_argument("--video_interval", type=int, default=5000, help="Interval between video recordings (in steps).")
+parser.add_argument("--video_length", type=int, default=5000, help="Length of the recorded video (in steps).")
+parser.add_argument("--video_interval", type=int, default=20000, help="Interval between video recordings (in steps).")
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
@@ -106,13 +106,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ========================= Can be modified ========================== #
 
     # hyperparameters
-    num_of_action = 20
-    action_range = [-10, 10]  # [min, max]
-    discretize_state_weight = [15, 24, 0, 0]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = 0.01
+    num_of_action = 5
+    action_range = [-12, 12]  # [min, max]
+    discretize_state_weight = [4, 8, 4, 4]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    learning_rate = 0.03
     n_episodes = 5000
     start_epsilon = 1.0
-    epsilon_decay = 0.00025  # reduce the exploration over time
+    epsilon_decay = 0.00003 # reduce the exploration over time
     final_epsilon = 0.05
     discount = 1
 
@@ -135,6 +135,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     timestep = 0
     sum_reward = 0
     # simulate environment
+
+    task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
+    Algorithm_name = "Q_Learning"
+    save_number = "0"
+    os.makedirs(f"q_value/{task_name}/{Algorithm_name}/{Algorithm_name}{save_number}", exist_ok=True)
+
+
     while simulation_app.is_running():
         # run everything in inference mode
         with torch.inference_mode():
@@ -171,21 +178,24 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 sum_reward += cumulative_reward
                 cumulative_reward_history.append(cumulative_reward)
                 
-                if episode % 100 == 0:
+                if episode % 100 == 0 or episode == n_episodes:
                     print("avg_score: ", sum_reward / 100.0)
                     sum_reward = 0
                     print(agent.epsilon)
+
+                    # Save Q-Learning agent
+                    q_value_file = f"{Algorithm_name}_{save_number}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
+                    full_path = os.path.join(f"q_value/{task_name}", f"{Algorithm_name}/{Algorithm_name}{save_number}")
+                    agent.save_q_value(full_path, q_value_file)
+
                 agent.decay_epsilon()
-            
-            # Save Q-Learning agent
-            Algorithm_name = "Q_Learning"
-            q_value_file = "QL_q_4.json"
-            full_path = os.path.join("q_value", Algorithm_name)
+
+            q_value_file = f"{Algorithm_name}_{save_number}_{n_episodes}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
             agent.save_q_value(full_path, q_value_file)
             
             # Save reward history
             os.makedirs("reward_value", exist_ok=True)
-            reward_file = os.path.join("reward_value", "QL_r_4.json")
+            reward_file = os.path.join("reward_value", f"QL_r_{save_number}.json")
             with open(reward_file, "w") as f:
                 json.dump(cumulative_reward_history, f)
             
