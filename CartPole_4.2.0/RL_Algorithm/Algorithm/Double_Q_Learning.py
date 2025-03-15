@@ -54,12 +54,12 @@ class Double_Q_Learning(BaseAlgorithm):
 
         This method applies the Double Q-Learning update rule to improve policy decisions by updating the Q-table.
         """
-        update_rand = np.random.randint(0, 2)
-        if update_rand == 0:
+        if np.random.rand() < 0.5:
             a_star = np.argmax(self.qa_values[next_obs_dis])
             self.qa_values[obs_dis][action_idx] += self.lr * (reward + self.discount_factor * self.qb_values[next_obs_dis][a_star] - self.qa_values[obs_dis][action_idx])
         else:
             b_star = np.argmax(self.qb_values[next_obs_dis])
             self.qb_values[obs_dis][action_idx] += self.lr * (reward + self.discount_factor * self.qa_values[next_obs_dis][b_star] - self.qb_values[obs_dis][action_idx])
+        self.q_values[obs_dis][action_idx] = self.qa_values[obs_dis][action_idx]
         pass
         #======================================#

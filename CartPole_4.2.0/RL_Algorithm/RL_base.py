@@ -92,11 +92,7 @@ class BaseAlgorithm():
         pose_pole_bin = self.discretize_state_weight[1]
         vel_cart_bin = self.discretize_state_weight[2]
         vel_pole_bin = self.discretize_state_weight[3]
-        # pose_cart_bin = 100
-        # pose_pole_bin = 720
-        # vel_cart_bin = 100
-        # vel_pole_bin = 100
-
+        
         # Clipping value
         pose_cart_bound = 3
         pose_pole_bound = float(np.deg2rad(24.0))

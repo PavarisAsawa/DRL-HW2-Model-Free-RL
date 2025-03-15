@@ -111,7 +111,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     final_epsilon = 0.05
     discount = 1
 
-    agent = Double_Q_Learning(
+    agent = SARSA(
         num_of_action=num_of_action,
         action_range=action_range,
         discretize_state_weight=discretize_state_weight,
@@ -124,8 +124,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
 
     task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
-    Algorithm_name = "Double_Q_Learning"  
-    episode = 4900
+    Algorithm_name = "SARSA"  
+    episode = 5000
     save_number = "0"
     q_value_file = f"{Algorithm_name}_{save_number}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
     full_path = os.path.join(f"q_value/{task_name}", f"{Algorithm_name}/{Algorithm_name}{save_number}")
@@ -153,10 +153,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     next_obs, reward, terminated, truncated, _ = env.step(action)
 
                     # print(obs["policy"])
-                    print(action)
+                    # print(action)
 
                     done = terminated or truncated
                     obs = next_obs
+                # print(reward)
         
 
         if args_cli.video:

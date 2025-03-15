@@ -64,12 +64,13 @@ class MC(BaseAlgorithm):
         
         if done:
             G_cum = 0 # return
-            for t in range(len(self.obs_hist) - 1, -1, -1): # Loop from the last state to the first state [T-1, T-2, ..., 0]
+            for t in reversed(range(len(self.obs_hist))):
                 G_cum = self.discount_factor * G_cum + self.reward_hist[t]
+                # print(G_cum)
                 if (self.obs_hist[t], self.action_hist[t]) not in list(zip(self.obs_hist[:t], self.action_hist[:t])):   # if First Visit
                     self.n_values[self.obs_hist[t]][self.action_hist[t]] += 1
                     self.q_values[self.obs_hist[t]][self.action_hist[t]] += (G_cum - self.q_values[self.obs_hist[t]][self.action_hist[t]]) / self.n_values[self.obs_hist[t]][self.action_hist[t]]
-                    
+            
             self.obs_hist.clear()
             self.action_hist.clear()
             self.reward_hist.clear()

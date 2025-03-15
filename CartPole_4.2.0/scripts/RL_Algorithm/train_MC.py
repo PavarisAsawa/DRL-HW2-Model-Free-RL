@@ -17,8 +17,8 @@ from tqdm import tqdm
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=5000, help="Length of the recorded video (in steps).")
-parser.add_argument("--video_interval", type=int, default=20000, help="Interval between video recordings (in steps).")
+parser.add_argument("--video_length", type=int, default=7200, help="Length of the recorded video (in steps).")
+parser.add_argument("--video_interval", type=int, default=25000, help="Interval between video recordings (in steps).")
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
@@ -114,7 +114,22 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     start_epsilon = 1.0
     epsilon_decay = 0.00003 # reduce the exploration over time
     final_epsilon = 0.05
-    discount = 1
+    discount = 0.01
+
+    # 0 - 1
+    # 1 - 0.25
+    # 2 - 0.01
+
+
+    # num_of_action = 7
+    # action_range = [-12, 12]  # [min, max]
+    # discretize_state_weight = [9, 13, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    # learning_rate = 0.015
+    # n_episodes = 7500
+    # start_epsilon = 1.0
+    # epsilon_decay = 0.00003 # reduce the exploration over time
+    # final_epsilon = 0.05
+    # discount = 1
 
     agent = MC(
         num_of_action=num_of_action,
@@ -138,7 +153,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
     Algorithm_name = "MC"
-    save_number = "0"
+    save_number = "2"
     os.makedirs(f"q_value/{task_name}/{Algorithm_name}/{Algorithm_name}{save_number}", exist_ok=True)
 
     while simulation_app.is_running():

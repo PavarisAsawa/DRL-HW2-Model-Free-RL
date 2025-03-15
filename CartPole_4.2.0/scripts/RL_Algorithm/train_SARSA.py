@@ -177,7 +177,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 sum_reward += cumulative_reward
                 cumulative_reward_history.append(cumulative_reward)
                 
-                if episode % 100 == 0 or episode == n_episodes:
+                if episode % 100 == 0:
                     print("avg_score: ", sum_reward / 100.0)
                     sum_reward = 0
                     print(agent.epsilon)
@@ -188,14 +188,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     agent.save_q_value(full_path, q_value_file)
 
                 agent.decay_epsilon()
-            
-            # Save Q-Learning agent
-            # Algorithm_name = "Q_Learning"
-            # q_value_file = "QL_q_9.json"
-            # full_path = os.path.join("q_value", Algorithm_name)
-            # agent.save_q_value(full_path, q_value_file)
 
-            
+            q_value_file = f"{Algorithm_name}_{save_number}_{n_episodes}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
+            full_path = os.path.join(f"q_value/{task_name}", f"{Algorithm_name}/{Algorithm_name}{save_number}")
+            agent.save_q_value(full_path, q_value_file)
+
             # Save reward history
             os.makedirs("reward_value", exist_ok=True)
             reward_file = os.path.join("reward_value", f"SARSA_r_{save_number}.json")

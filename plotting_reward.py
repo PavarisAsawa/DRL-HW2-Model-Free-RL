@@ -46,6 +46,7 @@ def plot_q_values_3d(q_values, x_index, y_index, x_max, y_max):
             xi = int(x_val - x_min)
             yi = int(y_val - y_min)
             Z[yi, xi] = max_val
+    print()
 
     # Plot 3D surface
     fig = plt.figure(figsize=(10, 8))
@@ -102,23 +103,3 @@ def plot_reward_grouped(json_file, group_size=100):
     plt.grid(True)
     plt.ylim(bottom=0)  # กำหนดให้แกน y เริ่มต้นที่ 0
     plt.show()
-# ตัวอย่างการใช้งาน
-if __name__ == "__main__":
-    # ระบุ path ของไฟล์ JSON Q-values ที่ต้องการโหลด
-    json_file = os.path.join("q_value", "Stabilize", "Q_Learning", "Q_Learning0", "Q_Learning_0_3000_5_12_4_8.json")
-    q_values = load_q_values(json_file)
-    
-    # กำหนด indices ที่ต้องการใช้สำหรับแกน x และ y
-    # ตัวอย่าง: ใช้ index 0 เป็นแกน x และ index 1 เป็นแกน y
-    x_index = 0
-    y_index = 1
-
-    # กำหนดช่วงของ state สำหรับแกน x และ y (ตัวอย่างนี้อาจปรับเปลี่ยนได้ตามข้อมูลที่มี)
-    # เช่น ถ้า key ใน Q-values มีค่า state อยู่ในช่วง 0-10 สำหรับ dimension ที่เลือก
-    x_range = 4
-    y_range = 8
-
-    # plot_q_values_3d(q_values, x_index, y_index, x_range, y_range)
-    
-    # plot_reward(r"reward_value\QL_r_0.json")
-    plot_reward_grouped(r"reward_value\SARSA_r_0.json", group_size=100)
