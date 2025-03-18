@@ -60,6 +60,6 @@ class Double_Q_Learning(BaseAlgorithm):
         else:
             b_star = np.argmax(self.qb_values[next_obs_dis])
             self.qb_values[obs_dis][action_idx] += self.lr * (reward + self.discount_factor * self.qa_values[next_obs_dis][b_star] - self.qb_values[obs_dis][action_idx])
-        self.q_values[obs_dis][action_idx] = self.qa_values[obs_dis][action_idx]
+        self.q_values[obs_dis][action_idx] = (self.qa_values[obs_dis][action_idx] + self.qa_values[obs_dis][action_idx])/2
         pass
         #======================================#

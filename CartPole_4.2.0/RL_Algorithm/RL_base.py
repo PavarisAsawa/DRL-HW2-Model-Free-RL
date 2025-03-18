@@ -96,8 +96,11 @@ class BaseAlgorithm():
         # Clipping value
         pose_cart_bound = 3
         pose_pole_bound = float(np.deg2rad(24.0))
-        vel_cart_bound = 15
-        vel_pole_bound = 15
+        # vel_cart_bound = 15
+        # vel_pole_bound = 15
+
+        vel_cart_bound = 25
+        vel_pole_bound = 25
         
         # get observation term from continuos space
         pose_cart_raw, pose_pole_raw , vel_cart_raw , vel_pole_raw = obs['policy'][0, 0] , obs['policy'][0, 1] , obs['policy'][0, 2] , obs['policy'][0, 3]
