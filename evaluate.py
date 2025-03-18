@@ -46,10 +46,9 @@ def plot_q_values_3d(q_values, x_index, y_index, x_max, y_max):
             xi = int(x_val - x_min)
             yi = int(y_val - y_min)
             Z[yi, xi] = max_val
-    print()
 
     # Plot 3D surface
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection='3d')
     surf = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none')
     ax.set_xlabel(f"State dimension {x_index}")
@@ -66,6 +65,7 @@ def plot_reward(json_file):
     with open(json_file, 'r') as f:
         data = json.load(f)
     rewards = data
+    plt.figure(figsize=(8, 6))
     plt.plot(rewards)
     plt.xlabel("Episode")
     plt.ylabel("Reward")
@@ -103,3 +103,42 @@ def plot_reward_grouped(json_file, group_size=100):
     plt.grid(True)
     plt.ylim(bottom=0)  # กำหนดให้แกน y เริ่มต้นที่ 0
     plt.show()
+
+def plot_multiple_reward_files(json_files, group_size=100):
+    """
+    Loads rewards from multiple JSON files and plots the average reward per group
+    for each file on a single graph.
+
+    Args:
+        json_files (list of str): List of paths to JSON files that store rewards (each as a list of rewards).
+        group_size (int): Number of episodes per group for averaging (default is 100).
+    """
+    plt.figure(figsize=(10, 6))
+    
+    for json_file in json_files:
+        # Load rewards from the JSON file
+        with open(json_file, 'r') as f:
+            rewards = json.load(f)
+        
+        # Compute average rewards per group
+        avg_rewards = []
+        episodes = []
+        for i in range(0, len(rewards), group_size):
+            group = rewards[i:i+group_size]
+            avg = np.mean(group)
+            avg_rewards.append(avg)
+            episodes.append(i)  # starting index of the group
+
+        # Plot with label derived from file name
+        label = os.path.basename(json_file)
+        plt.plot(episodes, avg_rewards, marker='o', linestyle='-', label=label)
+    
+    plt.xlabel("Episode")
+    plt.ylabel("Average Reward (per {} episodes)".format(group_size))
+    plt.title("Average Reward per {} Episodes".format(group_size))
+    plt.grid(True)
+    plt.ylim(bottom=0)  # Set y-axis to start at 0
+    plt.legend()
+    plt.show()
+    
+    
