@@ -101,27 +101,27 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
 
     # hyperparameters
-    num_of_action = 5
-    action_range = [-12, 12]  # [min, max]
-    discretize_state_weight = [4, 8, 4, 4]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = 0.03
-    n_episodes = 5000
-    start_epsilon = 0.05
-    epsilon_decay = 0.00003 # reduce the exploration over time
-    final_epsilon = 0.05
-    discount = 1
-
-    # num_of_action = 11
-    # action_range = [-25, 25]  # [min, max]
-    # discretize_state_weight = [7, 12, 5, 5]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    # num_of_action = 5
+    # action_range = [-12, 12]  # [min, max]
+    # discretize_state_weight = [4, 8, 4, 4]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
     # learning_rate = 0.03
-    # n_episodes = 20000
+    # n_episodes = 5000
     # start_epsilon = 0.05
     # epsilon_decay = 0.00003 # reduce the exploration over time
     # final_epsilon = 0.05
-    # discount = 0.5
+    # discount = 1
 
-    agent = Q_Learning(
+    num_of_action = 11
+    action_range = [-25, 25]  # [min, max]
+    discretize_state_weight = [7, 12, 5, 5]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    learning_rate = 0.03
+    n_episodes = 20000
+    start_epsilon = 0.05
+    epsilon_decay = 0.00003 # reduce the exploration over time
+    final_epsilon = 0.05
+    discount = 0.5
+
+    agent = Double_Q_Learning(
         num_of_action=num_of_action,
         action_range=action_range,
         discretize_state_weight=discretize_state_weight,
@@ -134,9 +134,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
 
     task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
-    Algorithm_name = "Q_Learning"
-    episode = 5000
-    save_number = "2"
+    Algorithm_name = "Double_Q_Learning"
+    episode = 20000
+    save_number = "1"
     q_value_file = f"{Algorithm_name}_{save_number}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
     full_path = os.path.join(f"q_value/{task_name}", f"{Algorithm_name}/{Algorithm_name}{save_number}")
     agent.load_q_value(full_path, q_value_file)
