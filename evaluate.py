@@ -43,6 +43,7 @@ def plot_q_values_3d(q_values, x_index, y_index, x_max, y_max):
         if x_min <= x_val <= x_max and y_min <= y_val <= y_max:
             max_val = max(values) if values else 0
             # คำนวณตำแหน่งใน grid (สมมติว่า state มีค่าเป็นตัวเลขที่ตรงกับ index ใน grid)
+            
             xi = int(x_val - x_min)
             yi = int(y_val - y_min)
             Z[yi, xi] = max_val
@@ -233,6 +234,220 @@ def plot_q_values_3d_dual(q_values, left_pair, left_range, right_pair, right_ran
     ax2.set_zlabel("Max Q-value")
     ax2.set_title(f"3D Q-values (indices {right_pair[0]}, {right_pair[1]})")
     fig.colorbar(surf2, ax=ax2, shrink=0.5, aspect=10)
+    
+    plt.tight_layout()
+    plt.show()
+    
+def plot_q_values_3d_and_top(q_values, x_index, y_index, x_range, y_range):
+    """
+    Plots Q-values in both 3D (surface) and top-down (2D heatmap) views 
+    for a single pair of state dimensions (x_index, y_index).
+
+    The z-axis / color represents the maximum Q-value across all actions for that state.
+
+    Args:
+        q_values (dict): Keys are state tuples, values are lists of Q-values (one for each action).
+        x_index (int): Index of the state dimension to use for the x-axis.
+        y_index (int): Index of the state dimension to use for the y-axis.
+        x_range (int): The number of discrete states in the x dimension (0 to x_range-1).
+        y_range (int): The number of discrete states in the y dimension (0 to y_range-1).
+    """
+
+    # Mapping from state dimension index to label (customize as needed)
+    dim_labels = {
+        0: "Cart Pose",
+        1: "Pole Pose",
+        2: "Cart Velocity",
+        3: "Pole Velocity"
+    }
+
+    # Set up the grid
+    x_min, x_max = 0, x_range
+    y_min, y_max = 0, y_range
+    x_vals = np.arange(x_min, x_max)
+    y_vals = np.arange(y_min, y_max)
+    X, Y = np.meshgrid(x_vals, y_vals)
+    Z = np.zeros_like(X, dtype=float)
+
+    # Fill in the Z array with max Q-values for each state in the given range
+    for state, values in q_values.items():
+        # Check if state has enough dimensions
+        if len(state) <= max(x_index, y_index):
+            continue
+
+        x_val = state[x_index]
+        y_val = state[y_index]
+
+        if x_min <= x_val < x_max and y_min <= y_val < y_max:
+            max_val = max(values) if values else 0
+            xi = int(x_val - x_min)
+            yi = int(y_val - y_min)
+            Z[yi, xi] = max_val
+
+    # Create a figure with two subplots side-by-side
+    fig = plt.figure(figsize=(12, 5))
+
+    # -------------------
+    # 1) 3D surface plot
+    # -------------------
+    ax1 = fig.add_subplot(1, 2, 1, projection='3d')
+    surf = ax1.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none')
+    ax1.set_xlabel(dim_labels.get(x_index, f"Dim {x_index}"))
+    ax1.set_ylabel(dim_labels.get(y_index, f"Dim {y_index}"))
+    ax1.set_zlabel("Max Q-value")
+    ax1.set_title(f"3D Q-values (Indices {x_index}, {y_index})")
+    fig.colorbar(surf, ax=ax1, shrink=0.6, aspect=10)
+
+    # -------------------
+    # 2) Top-down 2D heatmap
+    # -------------------
+    ax2 = fig.add_subplot(1, 2, 2)
+    # imshow expects y on the vertical axis and x on the horizontal,
+    # so we transpose Z or set origin='lower'.
+    im = ax2.imshow(
+        Z, origin='lower', 
+        cmap='viridis', 
+        extent=[x_min, x_max, y_min, y_max],
+        aspect='auto'
+    )
+    ax2.set_xlabel(dim_labels.get(x_index, f"Dim {x_index}"))
+    ax2.set_ylabel(dim_labels.get(y_index, f"Dim {y_index}"))
+    ax2.set_title(f"Top View (Indices {x_index}, {y_index})")
+    fig.colorbar(im, ax=ax2, shrink=0.6, aspect=10)
+
+    plt.tight_layout()
+    plt.show()
+    
+
+def get_heatmap_data(q_values, x_index, y_index, x_max, y_max):
+    """
+    Build a 2D array Z (of shape [y_max, x_max]) where each cell contains
+    the maximum Q-value for the corresponding (x_val, y_val) in the state space.
+    
+    Args:
+        q_values (dict): Dictionary with keys as state tuples and values as list of Q-values.
+        x_index (int): Index of the state tuple for the x-axis.
+        y_index (int): Index of the state tuple for the y-axis.
+        x_max (int): Number of discrete states along the x-axis (states 0 to x_max-1).
+        y_max (int): Number of discrete states along the y-axis (states 0 to y_max-1).
+    
+    Returns:
+        X, Y, Z: Arrays suitable for plotting with imshow. Z[y, x] contains the max Q-value.
+    """
+    # Create grid arrays from 0 to x_max-1 and 0 to y_max-1
+    x_vals = np.arange(0, x_max)
+    y_vals = np.arange(0, y_max)
+    X, Y = np.meshgrid(x_vals, y_vals)
+    
+    # Initialize Z with zeros
+    Z = np.zeros((y_max, x_max), dtype=float)
+    
+    # Fill Z with maximum Q-value for each state, if available
+    for state, values in q_values.items():
+        if len(state) <= max(x_index, y_index):
+            continue
+        x_val = state[x_index]
+        y_val = state[y_index]
+        if 0 <= x_val < x_max and 0 <= y_val < y_max:
+            max_val = max(values) if values else 0
+            xi = int(x_val)
+            yi = int(y_val)
+            Z[yi, xi] = max_val
+    return X, Y, Z
+
+def plot_q_values_heatmaps_multiple_files(
+    file_list,
+    left_pair, left_range,
+    right_pair, right_range,
+    episodes_list=None
+):
+    """
+    Plot heatmaps for multiple Q-value files. Each file produces two heatmaps side by side:
+      - Left heatmap uses state indices specified in left_pair (tuple: (x_index, y_index))
+        with grid size defined by left_range (tuple: (x_max, y_max)).
+      - Right heatmap uses state indices specified in right_pair (tuple: (x_index, y_index))
+        with grid size defined by right_range (tuple: (x_max, y_max)).
+    
+    If you have N files, the function creates an N-row x 2-column grid of subplots.
+    Each row is optionally labeled with an entry from episodes_list (e.g., episode number).
+    
+    Args:
+        file_list (list of str): Paths to JSON files containing Q-values.
+        left_pair (tuple): (x_index, y_index) for the left heatmap.
+        left_range (tuple): (x_max, y_max) for the left heatmap.
+        right_pair (tuple): (x_index, y_index) for the right heatmap.
+        right_range (tuple): (x_max, y_max) for the right heatmap.
+        episodes_list (list of str or None): Labels for each row (e.g., "Episode 1000"). If None, no extra labels are added.
+    """
+    # Mapping for state dimension labels.
+    dim_labels = {
+        0: "Cart Pose",
+        1: "Pole Pose",
+        2: "Cart Velocity",
+        3: "Pole Velocity"
+    }
+    
+    # Ensure episodes_list exists and has the same length as file_list
+    if episodes_list is None:
+        episodes_list = ["" for _ in file_list]
+    elif len(episodes_list) < len(file_list):
+        episodes_list += [""] * (len(file_list) - len(episodes_list))
+    
+    n_files = len(file_list)
+    fig, axes = plt.subplots(n_files, 2, figsize=(10, 3 * n_files))
+    
+    # If only one file is provided, reshape axes to 2D
+    if n_files == 1:
+        axes = np.array([axes])
+    
+    for i, json_file in enumerate(file_list):
+        # Load Q-values from JSON
+        with open(json_file, 'r') as f:
+            data = json.load(f)
+        raw_q_values = data['q_values']
+        # Convert keys to tuple of floats
+        q_dict = {}
+        for state_str, vals in raw_q_values.items():
+            st = tuple(map(float, state_str.strip("()").split(", ")))
+            q_dict[st] = vals
+        
+        # Build heatmap data for left pair
+        X_left, Y_left, Z_left = get_heatmap_data(
+            q_dict,
+            x_index=left_pair[0],
+            y_index=left_pair[1],
+            x_max=left_range[0],
+            y_max=left_range[1]
+        )
+        
+        # Build heatmap data for right pair
+        X_right, Y_right, Z_right = get_heatmap_data(
+            q_dict,
+            x_index=right_pair[0],
+            y_index=right_pair[1],
+            x_max=right_range[0],
+            y_max=right_range[1]
+        )
+        
+        # Plot left heatmap
+        im_left = axes[i, 0].imshow(Z_left, origin='lower', cmap='viridis', aspect='auto')
+        fig.colorbar(im_left, ax=axes[i, 0], fraction=0.046, pad=0.04)
+        axes[i, 0].set_xlabel(dim_labels.get(left_pair[0], f"Dim {left_pair[0]}"))
+        axes[i, 0].set_ylabel(dim_labels.get(left_pair[1], f"Dim {left_pair[1]}"))
+        axes[i, 0].set_title(f"{os.path.basename(json_file)} (Left: {left_pair})")
+        
+        # Plot right heatmap
+        im_right = axes[i, 1].imshow(Z_right, origin='lower', cmap='viridis', aspect='auto')
+        fig.colorbar(im_right, ax=axes[i, 1], fraction=0.046, pad=0.04)
+        axes[i, 1].set_xlabel(dim_labels.get(right_pair[0], f"Dim {right_pair[0]}"))
+        axes[i, 1].set_ylabel(dim_labels.get(right_pair[1], f"Dim {right_pair[1]}"))
+        axes[i, 1].set_title(f"{os.path.basename(json_file)} (Right: {right_pair})")
+        
+        # Add row label if provided (displaying episode info)
+        if episodes_list[i]:
+            # Here we set the ylabel of the left subplot to include the episode label.
+            current_ylabel = axes[i, 0].get_ylabel()
+            axes[i, 0].set_ylabel(f"{episodes_list[i]}\n{current_ylabel}")
     
     plt.tight_layout()
     plt.show()
