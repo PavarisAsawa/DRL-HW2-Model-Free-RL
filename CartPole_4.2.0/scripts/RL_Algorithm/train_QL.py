@@ -7,6 +7,8 @@ import sys
 import os
 import json
 
+from torch.utils.tensorboard import SummaryWriter
+
 from omni.isaac.lab.app import AppLauncher
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -86,6 +88,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # directory for logging into
     log_dir = os.path.join("logs", "sb3", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    writer = SummaryWriter(log_dir=log_dir)
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
@@ -109,7 +112,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # num_of_action = 11
     # action_range = [-25, 25]  # [min, max]
     # discretize_state_weight = [7, 12, 5, 5]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    # learning_rate = 0.03
+    # learning_rate = 0.3
     # n_episodes = 20000
     # start_epsilon = 1.0
     # epsilon_decay = 0.00003 # reduce the exploration over time
@@ -120,11 +123,21 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     action_range = [-12, 12]  # [min, max]
     discretize_state_weight = [4, 8, 4, 4]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
     learning_rate = 0.03
-    n_episodes = 5000
+    n_episodes = 20000
     start_epsilon = 1.0
     epsilon_decay = 0.00003 # reduce the exploration over time
     final_epsilon = 0.05
-    discount = 0.01
+    discount = 1
+
+    # num_of_action = 7
+    # action_range = [-25, 25]  # [min, max]
+    # discretize_state_weight = [9, 11, 0, 0]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    # learning_rate = 0.3
+    # n_episodes = 5000
+    # start_epsilon = 1.0
+    # epsilon_decay = 0.00003 # reduce the exploration over time
+    # final_epsilon = 0.05
+    # discount = 0.5
 
 
     agent = Q_Learning(
@@ -149,7 +162,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
     Algorithm_name = "Q_Learning"
-    save_number = "2"
+    save_number = "4"
     os.makedirs(f"q_value/{task_name}/{Algorithm_name}/{Algorithm_name}{save_number}", exist_ok=True)
 
 
@@ -191,9 +204,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 
                 if episode % 100 == 0 or episode == n_episodes:
                     print("avg_score: ", sum_reward / 100.0)
+                    writer.add_scalar("Average Reward", sum_reward / 100.0, episode)
+                    writer.add_scalar("Epsilon", agent.epsilon, episode)
                     sum_reward = 0
                     print(agent.epsilon)
 
+                if episode % 1000 == 0 or episode == n_episodes:
                     # Save Q-Learning agent
                     q_value_file = f"{Algorithm_name}_{save_number}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
                     full_path = os.path.join(f"q_value/{task_name}", f"{Algorithm_name}/{Algorithm_name}{save_number}")

@@ -8,6 +8,8 @@ import os
 import json
 
 from omni.isaac.lab.app import AppLauncher
+from torch.utils.tensorboard import SummaryWriter
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -86,6 +88,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # directory for logging into
     log_dir = os.path.join("logs", "sb3", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    writer = SummaryWriter(log_dir=log_dir)
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
@@ -192,9 +195,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 
                 if episode % 100 == 0 or episode == n_episodes:
                     print("avg_score: ", sum_reward / 100.0)
+                    writer.add_scalar("Average Reward", sum_reward / 100.0, episode)
+                    writer.add_scalar("Epsilon", agent.epsilon, episode)
                     sum_reward = 0
                     print(agent.epsilon)
 
+                if episode % 1000 == 0 or episode == n_episodes:
                     # Save Q-Learning agent
                     q_value_file = f"{Algorithm_name}_{save_number}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
                     full_path = os.path.join(f"q_value/{task_name}", f"{Algorithm_name}/{Algorithm_name}{save_number}")
@@ -202,6 +208,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
                 agent.decay_epsilon()
 
+            # Save Q-Learning agent
             q_value_file = f"{Algorithm_name}_{save_number}_{n_episodes}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
             agent.save_q_value(full_path, q_value_file)
 
